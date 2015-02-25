@@ -5,12 +5,12 @@ module.exports = (robot) ->
 #   respond : hubotに問いかけないと拾わない版
 #             ともに//内の正規表現にマッチしたときに処理を行う分岐。
 #             iは正規表現の大文字小文字を問わないの意味。
-#   topic   : ルームのトピック？が変更された時に処理を行う分岐。
+#   topic   : ルームのトピックが変更された時に処理を行う分岐(HipChatでは反応なし)
 #-----
 # msg(responsクラス)オブジェクト:
 #   send     : 発言があったチャンネルに対してhubotがオープンに発言
-#   reply    : 上記のユーザ指定あり版
-#   emote    : 感情表示
+#   reply    : 上記のユーザ指定あり版(hipChatでは未実装。対象が@undefinedになる)
+#   emote    : 感情表示(hipchatではjoinとかleftの時の表示と同様)
 #   play     : 音を鳴らす(campfire用らしい)
 #   locked   : ログに残らないようにする(campfire用らしい)
 #   random   : リストの中からランダムに選択
@@ -34,9 +34,9 @@ module.exports = (robot) ->
      else
        msg.reply "何言ってるかよくわかんないです^^;"
   
-  # 固定文字列に反応して固定の反応を返す(よくわかんない)
+  # 固定文字列に反応して固定の反応を返す
    robot.hear /android/i, (msg) ->
-     msg.emote "android"
+     msg.emote "makes a freshly baked pie"
   
   # 笑いを表現する英語ネットスラング
   #   lulz : 嘲笑で使われることが多い
@@ -50,17 +50,17 @@ module.exports = (robot) ->
      msg.send msg.random lulz
   
   # ルームのトピックが変わった時に反応？(よくわかんない)
-  # robot.topic (msg) ->
-  #   msg.send "#{msg.message.text}? That's a Paddlin'" 
+   robot.topic (msg) ->
+     msg.send "#{msg.message.text}? That's a Paddlin'" 
   
   # Hubotがルームに入った時、出た時にランダムに挨拶？
-  # enterReplies = ['Hi', 'Target Acquired', 'Firing', 'Hello friend.', 'Gotcha', 'I see you']
-  # leaveReplies = ['Are you still there?', 'Target lost', 'Searching']
+   enterReplies = ['Hi', 'Target Acquired', 'Firing', 'Hello friend.', 'Gotcha', 'I see you']
+   leaveReplies = ['Are you still there?', 'Target lost', 'Searching']
   
-  # robot.enter (msg) ->
-  #   msg.send msg.random enterReplies
-  # robot.leave (msg) ->
-  #   msg.send msg.random leaveReplies
+   robot.enter (msg) ->
+     msg.send msg.random enterReplies
+   robot.leave (msg) ->
+     msg.send msg.random leaveReplies
   
   # 環境変数を取ってくる
    answer = process.env.HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING
@@ -81,20 +81,22 @@ module.exports = (robot) ->
   
    annoyIntervalId = null
   
-   # 俺をイラッとさせろ→謎の文字列
+   # (annoy me)俺をイラッとさせろ
+   # -> Hubotが奇声を発する。
+   # -> あ？セカイで最もイラッとする声を聞きたいんだろ？ｗと煽ってくる
+   # -> 1秒毎に奇声を発し続ける
    robot.respond /annoy me/, (msg) ->
      if annoyIntervalId
        msg.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
        return
-  
-  # セカイをいらだたせてみろよ→　１秒毎に叫びだす
      msg.send "Hey, want to hear the most annoying sound in the world?"
      annoyIntervalId = setInterval () ->
        msg.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
      , 1000
 
-  # いらだたせんなよ->GUYS, GUYS .... ぴたりと止む
-  # いらだたせてないときは"今いらだたせてない・・・よね？という"
+  # (unannoy me)俺をイラだたせんなよ
+  # ->HubotがGUYS, GUYS GUYSとぴたりと止む
+  # 上記の奇声を発し続けていない時はHubotが"今、俺はいらだたせてない・・・よね？"と言ってくる
    robot.respond /unannoy me/, (msg) ->
      if annoyIntervalId
        msg.send "GUYS, GUYS, GUYS!"
