@@ -5,4 +5,23 @@ set -e
 npm install
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
 
+
+# HipChat向けの設定
+# Hubot 用アカウント設定
+# 1. ブラウザでHipChatにHubot用アカウントでログイン
+# 2. Edit Profile ＞ XMPP/Jabber info > JabberID
+export HUBOT_HIPCHAT_JID=""
+
+# Hubotアカウントでログインする時のパスワード
+export HUBOT_HIPCHAT_PASSWORD=""
+
+# Rooms > XMPP JID
+export HUBOT_HIPCHAT_ROOMS=""
+
+export HUBOT_LOG_LEVEL="debug"
+
+
+
+
+
 exec node_modules/.bin/hubot "$@"

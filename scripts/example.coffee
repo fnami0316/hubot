@@ -1,79 +1,109 @@
-# Description:
-#   Example scripts for you to examine and try out.
-#
-# Notes:
-#   They are commented out by default, because most of them are pretty silly and
-#   wouldn't be useful and amusing enough for day to day huboting.
-#   Uncomment the ones you want to try and experiment with.
-#
-#   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
-
 module.exports = (robot) ->
-
-  # robot.hear /badger/i, (msg) ->
-  #   msg.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
-  #
-  # robot.respond /open the (.*) doors/i, (msg) ->
-  #   doorType = msg.match[1]
-  #   if doorType is "pod bay"
-  #     msg.reply "I'm afraid I can't let you do that."
-  #   else
-  #     msg.reply "Opening #{doorType} doors"
-  #
-  # robot.hear /I like pie/i, (msg) ->
-  #   msg.emote "makes a freshly baked pie"
-  #
-  # lulz = ['lol', 'rofl', 'lmao']
-  #
-  # robot.respond /lulz/i, (msg) ->
-  #   msg.send msg.random lulz
-  #
+#-----
+# robotオブジェクト
+#   hear //i: hubotに問いかけなくても拾ってくれる。
+#   respond : hubotに問いかけないと拾わない版
+#             ともに//内の正規表現にマッチしたときに処理を行う分岐。
+#             iは正規表現の大文字小文字を問わないの意味。
+#   topic   : ルームのトピック？が変更された時に処理を行う分岐。
+#-----
+# msg(responsクラス)オブジェクト:
+#   send     : 発言があったチャンネルに対してhubotがオープンに発言
+#   reply    : 上記のユーザ指定あり版
+#   emote    : 感情表示
+#   play     : 音を鳴らす(campfire用らしい)
+#   locked   : ログに残らないようにする(campfire用らしい)
+#   random   : リストの中からランダムに選択
+#   http     : scoped-httpd-clientでHTTPリクエストを作成
+#   match[1] : robot.hear/respondで拾った文字列の内、任意とした部分[(.*)など]
+#   
+# process.env.<任意の環境変数>：
+#   環境変数の文字列を取得できる
+# =========================================
+#
+  # 固定文字列に反応して固定のオープンな発言を行う
+   robot.hear /アルファベット/i, (msg) ->
+     msg.send "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  
+  # Hubotに対して hubot の<任意文字列> と発言すると
+  # <任意文字列>が"バカ"という文字列だった場合とそれ以外とで違う反応を発言者に返す
+   robot.respond /の(.*)/i, (msg) ->
+     doorType = msg.match[1]
+     if doorType is "バカ"
+       msg.reply "バカはテメーだ！！！"
+     else
+       msg.reply "何言ってるかよくわかんないです^^;"
+  
+  # 固定文字列に反応して固定の反応を返す(よくわかんない)
+   robot.hear /android/i, (msg) ->
+     msg.emote "android"
+  
+  # 笑いを表現する英語ネットスラング
+  #   lulz : 嘲笑で使われることが多い
+  #   lol  : 大笑いする
+  #   rofl : 笑い転げる
+  #   lmao : ケツがもげるほど笑う
+  #-----------
+  # "hubot lulz"に対して"lol", "rofl", "lmao"のいずれかを返す
+   lulz = ['lol', 'rofl', 'lmao']
+   robot.respond /lulz/i, (msg) ->
+     msg.send msg.random lulz
+  
+  # ルームのトピックが変わった時に反応？(よくわかんない)
   # robot.topic (msg) ->
-  #   msg.send "#{msg.message.text}? That's a Paddlin'"
-  #
-  #
+  #   msg.send "#{msg.message.text}? That's a Paddlin'" 
+  
+  # Hubotがルームに入った時、出た時にランダムに挨拶？
   # enterReplies = ['Hi', 'Target Acquired', 'Firing', 'Hello friend.', 'Gotcha', 'I see you']
   # leaveReplies = ['Are you still there?', 'Target lost', 'Searching']
-  #
+  
   # robot.enter (msg) ->
   #   msg.send msg.random enterReplies
   # robot.leave (msg) ->
   #   msg.send msg.random leaveReplies
-  #
-  # answer = process.env.HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING
-  #
-  # robot.respond /what is the answer to the ultimate question of life/, (msg) ->
-  #   unless answer?
-  #     msg.send "Missing HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING in environment: please set and try again"
-  #     return
-  #   msg.send "#{answer}, but what is the question?"
-  #
-  # robot.respond /you are a little slow/, (msg) ->
-  #   setTimeout () ->
-  #     msg.send "Who you calling 'slow'?"
-  #   , 60 * 1000
-  #
-  # annoyIntervalId = null
-  #
-  # robot.respond /annoy me/, (msg) ->
-  #   if annoyIntervalId
-  #     msg.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
-  #     return
-  #
-  #   msg.send "Hey, want to hear the most annoying sound in the world?"
-  #   annoyIntervalId = setInterval () ->
-  #     msg.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
-  #   , 1000
-  #
-  # robot.respond /unannoy me/, (msg) ->
-  #   if annoyIntervalId
-  #     msg.send "GUYS, GUYS, GUYS!"
-  #     clearInterval(annoyIntervalId)
-  #     annoyIntervalId = null
-  #   else
-  #     msg.send "Not annoying you right now, am I?"
-  #
-  #
+  
+  # 環境変数を取ってくる
+   answer = process.env.HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING
+  
+  # 人生の究極の質問への答えは何？という問いかけに対して、上記環境変数を表示＆なんだその質問ｗ
+  # と返す。未定義なら未定義と表示。
+   robot.respond /what is the answer to the ultimate question of life/, (msg) ->
+     unless answer?
+       msg.send "Missing HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING in environment: please set and try again"
+       return
+     msg.send "#{answer}, but what is the question?"
+  
+  # ちょっと遅くね？に対し、60秒後に誰が遅いって？と返す。
+   robot.respond /you are a little slow/, (msg) ->
+     setTimeout () ->
+       msg.send "Who you calling 'slow'?"
+     , 3 * 1000
+  
+   annoyIntervalId = null
+  
+   # 俺をイラッとさせろ→謎の文字列
+   robot.respond /annoy me/, (msg) ->
+     if annoyIntervalId
+       msg.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
+       return
+  
+  # セカイをいらだたせてみろよ→　１秒毎に叫びだす
+     msg.send "Hey, want to hear the most annoying sound in the world?"
+     annoyIntervalId = setInterval () ->
+       msg.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
+     , 1000
+
+  # いらだたせんなよ->GUYS, GUYS .... ぴたりと止む
+  # いらだたせてないときは"今いらだたせてない・・・よね？という"
+   robot.respond /unannoy me/, (msg) ->
+     if annoyIntervalId
+       msg.send "GUYS, GUYS, GUYS!"
+       clearInterval(annoyIntervalId)
+       annoyIntervalId = null
+     else
+       msg.send "Not annoying you right now, am I?"
+  
+  # 
   # robot.router.post '/hubot/chatsecrets/:room', (req, res) ->
   #   room   = req.params.room
   #   data   = JSON.parse req.body.payload
