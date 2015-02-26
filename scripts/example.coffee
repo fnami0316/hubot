@@ -1,8 +1,7 @@
-module.exports = (robot) ->
 #-----
 # robotオブジェクト
 #   hear //i: hubotに問いかけなくても拾ってくれる。
-#   respond : hubotに問いかけないと拾わない版
+#   respond : hubotに問いかけないと拾わない版(HipChatの場合はmention nameで問いかける)
 #             ともに//内の正規表現にマッチしたときに処理を行う分岐。
 #             iは正規表現の大文字小文字を問わないの意味。
 #   topic   : ルームのトピックが変更された時に処理を行う分岐(HipChatでは反応なし)
@@ -16,11 +15,13 @@ module.exports = (robot) ->
 #   random   : リストの中からランダムに選択
 #   http     : scoped-httpd-clientでHTTPリクエストを作成
 #   match[1] : robot.hear/respondで拾った文字列の内、任意とした部分[(.*)など]
-#   
+#
 # process.env.<任意の環境変数>：
 #   環境変数の文字列を取得できる
 # =========================================
 #
+
+module.exports = (robot) ->
   # 固定文字列に反応して固定のオープンな発言を行う
    robot.hear /アルファベット/i, (msg) ->
      msg.send "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
